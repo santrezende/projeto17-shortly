@@ -5,7 +5,7 @@ export async function createUrl(req, res) {
     const { url } = req.body
     const { userId } = res.locals.session
     const shortUrl = nanoid()
-
+    console.log(url)
     try{
         await db.query(`INSERT INTO urls(url, "shortUrl", "userId") VALUES ($1, $2, $3);`, [url, shortUrl, userId])
         const createdUrl = await db.query(`SELECT * FROM urls WHERE "shortUrl"=$1;`, [shortUrl])

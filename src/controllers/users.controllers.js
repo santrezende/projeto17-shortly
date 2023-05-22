@@ -31,8 +31,6 @@ export async function signIn(req, res) {
 
     const user = await db.query(`SELECT * FROM users WHERE email=$1;`, [email])
 
-    if (user.rowCount === 0) return res.status(404).send("Não existe uma conta com esse e-mail")
-
     if (user.rows[0] && bcrypt.compareSync(password, user.rows[0].password)) {
         const existingSession = await db.query(`SELECT * FROM sessions WHERE email=$1;`, [email])
 
@@ -74,7 +72,7 @@ export async function logOut(req, res) {
 
 export async function getMyLinks(req, res) {
     const { userId } = res.locals.session
-
+    
     try{
         const result = await db.query(`
         SELECT SUM(u.views) AS "visitCount", u."userId", usr."name"
@@ -84,7 +82,8 @@ export async function getMyLinks(req, res) {
         GROUP BY u."userId", usr."name";
         `, [userId])
 
-        const result_urls = await db.query(`SELECT * FROM urls WHERE "userId"=$1;`, [userId])
+        const result_urls = await db.query(`SELECT id, "shortUrl", url, urls.views AS "visitCount" FROM urls WHERE "userId"=$1;`, [userId])
+        if(result_urls.rowCount === 0) return res.status(200).send([])
 
         const response = {
             id: result.rows[0].userId,
