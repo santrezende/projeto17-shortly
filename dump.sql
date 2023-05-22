@@ -27,7 +27,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.sessions (
     id integer NOT NULL,
     email text NOT NULL,
-    token text NOT NULL
+    token text NOT NULL,
+    "userId" integer NOT NULL
 );
 
 
@@ -177,6 +178,14 @@ SELECT pg_catalog.setval('public.users_id_seq', 1, false);
 
 
 --
+-- Name: sessions sessions_email_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_email_key UNIQUE (email);
+
+
+--
 -- Name: sessions sessions_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -190,6 +199,14 @@ ALTER TABLE ONLY public.sessions
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_token_key UNIQUE (token);
+
+
+--
+-- Name: sessions sessions_userId_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT "sessions_userId_key" UNIQUE ("userId");
 
 
 --
@@ -222,6 +239,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_fk0 FOREIGN KEY (email) REFERENCES public.users(email);
+
+
+--
+-- Name: sessions sessions_fk1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_fk1 FOREIGN KEY ("userId") REFERENCES public.users(id);
 
 
 --
