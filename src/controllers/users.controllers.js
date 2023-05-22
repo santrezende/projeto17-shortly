@@ -98,3 +98,27 @@ export async function getMyLinks(req, res) {
         return res.status(422).send(err.message)
     }
 }
+
+export async function getRanking(req, res) {
+    try{
+        const result = await db.query(`
+        SELECT
+            u."userId" AS id,
+            usr."name",
+        COUNT(u.*) AS "linksCount",
+        SUM(u.views) AS "visitCount"
+        FROM
+            urls u
+        JOIN
+            users usr ON u."userId" = usr.id
+        GROUP BY
+            u."userId", usr."name"
+        ORDER BY
+            "visitCount" DESC
+        LIMIT 10;
+        `)
+        return res.status(200).send(result.rows)
+    } catch (err) {
+        return res.status(422).send(err.message)
+    }
+}
