@@ -71,3 +71,30 @@ export async function logOut(req, res) {
         return res.status(422).send(err.message)
     }
 }
+
+export async function getMyLinks(req, res) {
+    const { userId } = res.locals.session
+
+    try{
+        const result = await db.query(`
+        SELECT SUM(u.views) AS "visitCount", u."userId", usr."name"
+        FROM urls u
+        JOIN users usr ON u."userId" = usr.id
+        WHERE u."userId" = $1
+        GROUP BY u."userId", usr."name";
+        `, [userId])
+
+        const result_urls = await db.query(`SELECT * FROM urls WHERE "userId"=$1;`, [userId])
+
+        const response = {
+            id: result.rows[0].userId,
+            name: result.rows[0].name,
+            visitCount: result.rows[0].visitCount,
+            shortenedUrls: result_urls.rows
+        }
+
+        return res.status(200).send(response)
+    } catch (err) {
+        return res.status(422).send(err.message)
+    }
+}
